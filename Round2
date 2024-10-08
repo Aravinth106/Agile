@@ -1,0 +1,101 @@
+import java.util.*;
+
+public class EmployeeDatabase {
+    
+
+    static Map<String, List<Map<String, String>>> database = new HashMap<>();
+
+    public static void createCollection(String p_collection_name) {
+        if (!database.containsKey(p_collection_name)) {
+            database.put(p_collection_name, new ArrayList<>());
+            System.out.println("Collection '" + p_collection_name + "' created.");
+        } else {
+            System.out.println("Collection '" + p_collection_name + "' already exists.");
+        }
+    }
+
+    public static void indexData(String p_collection_name, String p_exclude_column) {
+        if (database.containsKey(p_collection_name)) {
+            List<Map<String, String>> employees = new ArrayList<>();
+  
+            employees.add(new HashMap<>(Map.of("EmpID", "E02001", "Name", "Will Smith", "Department", "IT", "Gender", "Male", "Phone", "4455")));
+            employees.add(new HashMap<>(Map.of("EmpID", "E02002", "Name", "Kavin Peter", "Department", "HR", "Gender", "Female", "Phone", "3436")));
+            employees.add(new HashMap<>(Map.of("EmpID", "E02003", "Name", "Jhon Snow", "Department", "IT", "Gender", "Male", "Phone", "9108")));
+
+            for (Map<String, String> emp : employees) {
+                emp.remove(p_exclude_column); 
+            }
+            database.get(p_collection_name).addAll(employees);
+            System.out.println("Data indexed into collection '" + p_collection_name + "' excluding '" + p_exclude_column + "'");
+        } else {
+            System.out.println("Collection '" + p_collection_name + "' does not exist.");
+        }
+    }
+
+    public static void searchByColumn(String p_collection_name, String p_column_name, String p_column_value) {
+        if (database.containsKey(p_collection_name)) {
+            List<Map<String, String>> collection = database.get(p_collection_name);
+            System.out.println("Search results in collection '" + p_collection_name + "' where '" + p_column_name + "' = '" + p_column_value + "':");
+            for (Map<String, String> emp : collection) {
+                if (emp.get(p_column_name) != null && emp.get(p_column_name).equals(p_column_value)) {
+                    System.out.println(emp);
+                }
+            }
+        } else {
+            System.out.println("Collection '" + p_collection_name + "' does not exist.");
+        }
+    }
+
+    public static void getEmpCount(String p_collection_name) {
+        if (database.containsKey(p_collection_name)) {
+            System.out.println("Employee count in collection '" + p_collection_name + "': " + database.get(p_collection_name).size());
+        } else {
+            System.out.println("Collection '" + p_collection_name + "' does not exist.");
+        }
+    }
+
+    public static void delEmpById(String p_collection_name, String p_employee_id) {
+        if (database.containsKey(p_collection_name)) {
+            List<Map<String, String>> collection = database.get(p_collection_name);
+            collection.removeIf(emp -> emp.get("EmpID").equals(p_employee_id));
+            System.out.println("Employee with ID '" + p_employee_id + "' deleted from collection '" + p_collection_name + "'.");
+        } else {
+            System.out.println("Collection '" + p_collection_name + "' does not exist.");
+        }
+    }
+
+    public static void getDepFacet(String p_collection_name) {
+        if (database.containsKey(p_collection_name)) {
+            Map<String, Integer> departmentCount = new HashMap<>();
+            List<Map<String, String>> collection = database.get(p_collection_name);
+
+            for (Map<String, String> emp : collection) {
+                String department = emp.get("Department");
+                if (department != null) {
+                    departmentCount.put(department, departmentCount.getOrDefault(department, 0) + 1);
+                }
+            }
+            System.out.println("Department facet for collection '" + p_collection_name + "': " + departmentCount);
+        } else {
+            System.out.println("Collection '" + p_collection_name + "' does not exist.");
+        }
+    }
+
+    public static void main(String[] args) {
+        String v_nameCollection = "Hash_Aravinth";
+        String v_phoneCollection = "Hash_9445";
+
+        createCollection(v_nameCollection);
+        createCollection(v_phoneCollection);
+        getEmpCount(v_nameCollection);
+        indexData(v_nameCollection, "Department");
+        indexData(v_phoneCollection, "Gender");
+        delEmpById(v_nameCollection, "E02003");
+        getEmpCount(v_nameCollection);
+        searchByColumn(v_nameCollection, "Department", "IT");
+        searchByColumn(v_nameCollection, "Gender", "Male");
+        searchByColumn(v_phoneCollection, "Department", "IT");
+        getDepFacet(v_nameCollection);
+        getDepFacet(v_phoneCollection);
+    }
+}
